@@ -19,6 +19,7 @@
 	export let message: ChatMessage;
 	export let renderChildren = false;
 
+	// Sends the please confirm delete message
 	async function modalConfirmDelete(id?: string) {
 		if (!id) {
 			return;
@@ -38,8 +39,10 @@
 		};
 		modalStore.trigger(modal);
 	}
-</script>
 
+
+
+</script>
 <div
 	class="flex flex-col px-5 py-2 rounded-2xl {message.role === 'assistant'
 		? 'md:place-self-start'
