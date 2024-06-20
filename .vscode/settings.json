@@ -1,3 +1,4 @@
+# This initializes the configuration setting for Tailwind CSS
 {
 	"tailwindCSS.classAttributes": [
 		"class",
