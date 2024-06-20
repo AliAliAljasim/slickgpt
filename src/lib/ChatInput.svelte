@@ -1,4 +1,6 @@
 <script lang="ts">
+
+	// These are the imports of modules and components that are being used
 	import { onDestroy, tick } from 'svelte';
 	import { textareaAutosizeAction } from 'svelte-legos';
 	import { focusTrap, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
@@ -33,6 +35,8 @@
 	export let slug: string;
 	export let chatCost: ChatCost | null;
 
+
+	// Defines the reactive variables
 	let debounceTimer: number | undefined;
 	let input = '';
 	let inputCopy = '';
@@ -44,9 +48,13 @@
 	let isEditMode = false;
 	let originalMessage: ChatMessage | null = null;
 
+
+	// Initializes two components using the variables from the import
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
 
+
+	// Initalizes chatStore for chat-related Data entries
 	$: chat = $chatStore[slug];
 	$: message = {
 		role: 'user',
@@ -54,15 +62,19 @@
 	} as ChatMessage;
 	$: provider = getProviderForModel(chat.settings.model);
 
+	// Controls "subscription", subscribes to chatStore that manages chat data entries
 	const unsubscribe = chatStore.subscribe((chats) => {
 		const chat = chats[slug];
 		if (chat) {
 			currentMessages = chatStore.getCurrentMessageBranch(chat);
 		}
 	});
-
+	
+	// Deletes the component chatStore
 	onDestroy(unsubscribe);
 
+
+	// Token Calculation, counts how many tokens you used using cost 
 	let tokensLeft = -1;
 	$: {
 		tokensLeft = chatCost
@@ -72,6 +84,8 @@
 	$: maxTokensCompletion = chat.settings.max_tokens;
 	// $: showTokenWarning = maxTokensCompletion > tokensLeft;
 
+
+	// Moderation
 	async function checkModerationApi(messages: ChatMessage[], token: string) {
 		if (PUBLIC_MODERATION === 'true') {
 			const textMessages = messages.map((msg) => msg.content);
@@ -117,6 +131,8 @@
 		return true;
 	}
 
+
+	// Controls User submissions, tracks events using 'track' and manages API interactions based on '$isPro'
 	async function handleSubmit() {
 		isLoadingAnswerStore.set(true);
 		inputCopy = input;
@@ -202,6 +218,8 @@
 
 	let rawAnswer: string = '';
 
+
+	// Real time handling
 	function showLiveResponse(delta: string) {
 		liveAnswerStore.update((store) => {
 			const answer = { ...store };
@@ -216,7 +234,7 @@
 			return answer;
 		});
 	}
-
+	// Handles completed responses
 	function handleAnswer(event: MessageEvent<any>) {
 		try {
 			if ($isPro) {
@@ -241,12 +259,12 @@
 			handleError(err);
 		}
 	}
-
+	// Handles aborted responses
 	function handleAbort(_event: MessageEvent<any>) {
 		// the message we're adding is incomplete, so HLJS probably can't highlight it correctly
 		addCompletionToChat(true);
 	}
-
+	// Handles errors
 	function handleError(event: any) {
 		$eventSourceStore.reset();
 		$isLoadingAnswerStore = false;
@@ -270,6 +288,9 @@
 		input = inputCopy;
 	}
 
+
+	// Resetting components
+	// Marks the completions of a response
 	function addCompletionToChat(isAborted = false) {
 		const messageToAdd: ChatMessage = !isAborted
 			? { ...$liveAnswerStore }
@@ -283,7 +304,7 @@
 		lastUserMessage = null;
 		cancelEditMessage();
 	}
-
+	// Resets the components to default states
 	function resetLiveAnswer() {
 		liveAnswerStore.update((store) => {
 			const answer = { ...store };
@@ -292,7 +313,7 @@
 		});
 		rawAnswer = '';
 	}
-
+	// Handles keyboardevents
 	function handleKeyDown(event: KeyboardEvent) {
 		clearTimeout(debounceTimer);
 		debounceTimer = window.setTimeout(calculateMessageTokens, 750);
@@ -305,13 +326,13 @@
 			handleSubmit();
 		}
 	}
-
+	// Calculates tokens
 	function calculateMessageTokens() {
 		messageTokens = countTokens(message);
 		clearTimeout(debounceTimer);
 		debounceTimer = undefined;
 	}
-
+	// Opens the token cost message
 	function openTokenCostDialog() {
 		calculateMessageTokens();
 		showModalComponent(modalStore, 'CostModal', { chatCost, maxTokensCompletion, messageTokens });
@@ -327,6 +348,8 @@
 		calculateMessageTokens();
 	}
 
+
+	// Controls editing of messages
 	export async function editMessage(message: ChatMessage) {
 		originalMessage = message;
 		input = message.content;
@@ -346,8 +369,11 @@
 		await tick();
 		textareaAutosizeAction(textarea);
 	}
-</script>
+// end of the first part of the code
 
+
+</script>
+<!-- HTML is being used for the sturcture of the website -->
 <footer class="sticky space-y-4 bottom-0 z-10 card variant-surface p-2 rounded-none md:rounded-lg">
 	{#if $isLoadingAnswerStore}
 		<div class="flex items-center justify-center">
