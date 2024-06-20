@@ -1,81 +1,77 @@
 <script lang="ts">
-	import { afterUpdate, onMount } from 'svelte';
-	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import snarkdown from 'snarkdown';
-	import { afterNavigate } from '$app/navigation';
-	import type { Chat } from '$misc/shared';
-	import { chatStore, isLoadingAnswerStore, liveAnswerStore } from '$misc/stores';
-	import ChatMessages from './ChatMessages.svelte';
+    // Import necessary modules and components
+    import { afterUpdate, onMount } from 'svelte';
+    import { ProgressRadial } from '@skeletonlabs/skeleton';
+    import snarkdown from 'snarkdown';
+    import { afterNavigate } from '$app/navigation';
+    import type { Chat } from '$misc/shared';
+    import { chatStore, isLoadingAnswerStore, liveAnswerStore } from '$misc/stores';
+    import ChatMessages from './ChatMessages.svelte';
 
-	export let slug: string;
-	export let chat: Chat | undefined = undefined;
+    // Exported props
+    export let slug: string; 						// Slug for identifying specific chat
+    export let chat: Chat | undefined = undefined; 			// Chat object, initially undefined
 
-	$: if ($chatStore[slug]) {
-		// If this is used in the "Shared chat" view, the chat is not in the local store.
-		// Instead it's loaded from the db and passed in as a prop.
-		chat = $chatStore[slug];
-	}
+    // Reactive statement to update chat based on slug
+    $: if ($chatStore[slug]) {
+        chat = $chatStore[slug];
+    }
 
-	// Autoscroll: https://svelte.dev/tutorial/update
-	let div: HTMLElement | null | undefined;
-	// let autoscroll: boolean | null | undefined;
+    // Autoscroll setup
+    let div: HTMLElement | null | undefined; // Setup for auto scroll
 
-	onMount(() => {
-		// bind to the *scrollable* element by it's id
-		// note: element is not exposed in this file, it lives in app.html
-		div = document.getElementById('page');
-	});
+    // Mount lifecycle hook: called when component is mounted to DOM
+    onMount(() => {
+        // Get a reference to scrollable element with id 'page'
+        div = document.getElementById('page');
+    });
 
-	function scrollToBottom() {
-		setTimeout(() => {
-			div?.scrollTo({ top: div.scrollHeight + 999, behavior: 'smooth' });
-		}, 50);
-	}
+    // Function to scroll to bottom of chat messages
+    function scrollToBottom() {
+        setTimeout(() => {
+            // Scroll div element to the bottom with smooth behavior
+            div?.scrollTo({ top: div.scrollHeight + 999, behavior: 'smooth' });
+        }, 50);
+    }
 
-	// beforeUpdate(() => {
-	// TODO: This isn't working anymore. Disabled the check for now and always auto-scroll
-	// autoscroll = div ? div.scrollTop === div.scrollHeight - div.offsetHeight : false;
-	// });
+    // After update lifecycle hook: called after component updates
+    afterUpdate(() => {
+        scrollToBottom(); // Scroll to bottom of chat messages
+    });
 
-	afterUpdate(() => {
-		// if (autoscroll) {
-		scrollToBottom();
-		// }
-	});
-
-	// autoscroll to bottom after navigation
-	afterNavigate(() => {
-		scrollToBottom();
-	});
+    // After navigate hook: called after navigation events
+    afterNavigate(() => {
+        scrollToBottom(); // Scroll to bottom of chat messages after navigation
+    });
 </script>
 
-{#if chat}
+{#if chat} 	// checks if chat is fine and wokring
 	<div
-		class="flex flex-col container justify-end h-full mx-auto px-4 md:px-8 gap-6"
+		class="flex flex-col container justify-end h-full mx-auto px-4 md:px-8 gap-6" <!-- Flexbox layout in column form, container meaning fixed width, alligns at the bottom, full height of parent, centres, pads gaps -->
 	>
-		<slot name="additional-content-top" />
+		<slot name="additional-content-top" />  <!-- allows external entries -->
 
-		{#if chat.messages.length > 0 || $isLoadingAnswerStore}
-			<div class="flex flex-col max-w-4xl md:mx-auto space-y-6">
-				<!-- Message history -->
-				<ChatMessages {slug} siblings={chat.messages} on:editMessage />
+		{#if chat.messages.length > 0 || $isLoadingAnswerStore} <!-- length is longer than 0 and exists -->
+			<div class="flex flex-col max-w-4xl md:mx-auto space-y-6"> <!-- Just designs -->
+				<!-- Message history --> 
+				<ChatMessages {slug} siblings={chat.messages} on:editMessage /> <!-- Sets chat.messages as sibling function to ChatMessages meaning it anytime one changes the other does too -->
 
 				<!-- Live Message -->
 				{#if $isLoadingAnswerStore}
 					<div class="place-self-start">
 						<div class="p-5 rounded-2xl variant-ghost-tertiary rounded-tl-none">
-							{@html snarkdown($liveAnswerStore.content)}
+							{@html snarkdown($liveAnswerStore.content)} <!-- renders HTML content directly -->
 						</div>
 					</div>
 				{/if}
 			</div>
 		{/if}
 
-		<slot name="additional-content-bottom" />
+		<slot name="additional-content-bottom" /> <!-- another slot to put stuff in -->
 
 		<!-- Progress indicator -->
-		{#if $isLoadingAnswerStore}
-			<div class="animate-pulse md:w-12 self-center py-2 md:py-6">
+		{#if $isLoadingAnswerStore} 
+			<div class="animate-pulse md:w-12 self-center py-2 md:py-6"> <!-- pulse effect to make it look smooth & other effects -->
 				<ProgressRadial
 					class="w-8"
 					stroke={120}
