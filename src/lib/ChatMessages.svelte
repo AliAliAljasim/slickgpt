@@ -1,24 +1,28 @@
 <script lang="ts">
+	// Imports modules
 	import type { ChatMessage as ChatMessageModel } from '$misc/shared';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { chatStore } from '$misc/stores';
 	import ChatMessage from './ChatMessage.svelte';
 
+	// Exports components for external use
 	export let slug: string;
 	export let siblings: ChatMessageModel[];
 
+	// Intializes tabSet as a sibling component to getActiveIndex
 	let tabSet = getActiveIndex(siblings);
 
+	// Determines the active tab index based on whether a message is selected
 	function getActiveIndex(messages: ChatMessageModel[]) {
 		let result = 0;
 		if (messages.length > 1) {
 			result = messages.findIndex((message) => message.isSelected);
 		}
 
-		// fallback to first item if none is selected (shouldn't happen)
+		// fallback to the first item if none is selected (shouldn't happen)
 		return Math.max(result, 0);
 	}
-
+	// Handles Tab changes based off and changes the sibling chat messages based on the selected Tab
 	function handleChangeTab(e: any): void {
 		const id = siblings[e.target?.value].id!;
 		chatStore.selectSibling(slug, id);
