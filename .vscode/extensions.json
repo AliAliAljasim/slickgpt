@@ -1,3 +1,4 @@
+# This file just previews VSC extentions that are used in this script
 {
     "recommendations": [
         "dbaeumer.vscode-eslint",
