@@ -1,4 +1,5 @@
 <script lang="ts">
+	// Import of modules and components from other directories
 	import type { ChatMessage } from '$misc/shared';
 	import { createEventDispatcher } from 'svelte';
 	import { type ModalSettings, getModalStore } from '@skeletonlabs/skeleton';
@@ -9,9 +10,11 @@
 	import TokenCost from './TokenCost.svelte';
 	import ChatMessages from './ChatMessages.svelte';
 
+	// Initialization of components based on imported functions
 	const dispatch = createEventDispatcher();
 	const modalStore = getModalStore();
 
+	// exports components for external use
 	export let slug: string;
 	export let message: ChatMessage;
 	export let renderChildren = false;
